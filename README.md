@@ -9,7 +9,6 @@
 
 ## 詳細な内容
 - Railsで「Hello」と表示する
-　　- 一旦、article/indexで表示してみる
+　　-　一旦、article/indexで表示してみる
 - Articleモデルを生成する
-　　- title:string, body:text
-- ...
+- title:string, body:text
