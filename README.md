@@ -1,0 +1,71 @@
+# rails_basic
+
+## 目的
+- FrontendとBackendが分離されたアプリケーションしか触ってこなかった結果、RailsのView周りを含めた設定が怪しい...
+- Ursmさんに聞いたところ、何にも見なくても普通に全部設定できるという話だったので修行する
+
+## 概要
+- 一旦、Railsガイドの「[Railsをはじめよう](https://railsguides.jp/getting_started.html)」を何も見ずに書けるようにしておく
+- 書き方に慣れつつ、怪しい箇所については再度ガイドを読み直す
+
+## 詳細な内容
+- Railsで「Hello」と表示する
+  - 一旦、article/indexとrootで表示してみる
+- Articleモデルを生成する
+  - title:string, body:text
+  - migration
+- 一旦、コンソールから２件くらいデータを作成しておく
+- Articleのタイトル一覧を表示する
+  - index
+- Articleをtitleとbodyを１件表示する
+  - show
+- resourcesを使ったルーティングに変更
+  - path一覧を表示して確認する
+- Articleのタイトル一覧から、個別のshowリンクに飛べるように修正する
+  - この時はヘルパーを使わず、aタグで実装すること
+  - その後、link_toヘルパーメソッドを使って遷移できるようにする
+- Createできるようにする
+  - 成功したら、article/#{@article.id}に遷移できるように、redirect_toヘルパーメソッドを使って実装する
+  - 失敗したら、unprocessable_entityでエラーを返す
+  - viewはform_withヘルパーメソッドを使って実装する
+    - HTMLにどのように変換されるかも確認する
+  - strong paramsを設定する
+- Articleモデルにバリデーションを入れる
+  - 条件は、titleもbodyも必ず存在すること、またbodyは１０文字以上とすること
+  - バリデーションに引っかかった場合、viewファイルでエラーが表示されるようにする(full_messages_for ヘルパーメソッドを使用する)
+- 記事の一覧ページの下に新規作成のリンクを貼る
+  - リンクの文字は"New Article"
+  - link_toメソッドに渡すパスは、new_xxx_xxxを指定する
+-  記事を更新する
+  - edit, updateコントローラを作成する
+  - editはviewファイル上で該当するarticleが@articleでアクセスできるようにしておく
+  - updateコントローラは、パリデーションが失敗せずに更新が成功した時、ブラウザ更新後の記事ページにリダイレクトする
+- ビューで使うコードをパーシャルで共有する
+  - newもeditも同じようなことをするページなので、form_withのペルパーで書いた内容は似たような形になる。そこでパーシャルとして処理を共通化する
+    - この時、インスタンス変数(@article)は、form_withでローカル変数としてパーシャルに渡せるようにする(new.html.erb, edit.html.erb内で、form_withに渡す)
+      - renderメソッドを使ってformのパーシャルを表示し、ローカル変数であるarticleに@articleを渡す
+- showページの末尾にeditのリンクを追加する
+  - link_toメソッドを使い、editのページに@article変数を渡す(editコントローラで呼んでないので)
+- 削除機能を追加する
+  - destroyメソッドを呼び出し、削除後に記事の一覧ページにリダイレクトする
+  - この時、statusはsee_otherとする
+  - showページにDestoryのリンクを作成する
+    - turboを使って、deleteメソッドを指定するとともに、削除時に確認メッセージ"Are you sure?"を表示する
+- 第２のモデルCommentモデルを追加する
+  -　CommentモデルはArticleモデルにbelogs_toしていて、Article側はCommentをhas_manyしている
+  - generate時に、referenceを使って生成し、migrateする
+  - [Active Recordの関連付けガイド参照](https://railsguides.jp/getting_started.html#:~:text=%E3%80%81Active%20Record%E3%81%AE%E9%96%A2%E9%80%A3%E4%BB%98%E3%81%91%E3%82%AC%E3%82%A4%E3%83%89)
+- コメントへのルーティングを追加する
+  - ネストしたリソースとして、commentsを定義する（モデルの記述とは別の観点から、記事とコメントの間のリレーションシップを階層的に捉えたもの）
+  - [ルーテイングガイド参照](Railsのルーティング)
+- Commentのコントローラを生成する
+  - 最初にコメントを書くためのViewが必要なので、articleのshowテンプレート(app/views/aritcles/show.html.erb)にコメントが追加できるようなformをform_withを使って作成する
+    -　CommentsControllerのcreateアクションを呼び出すことでコメントが新規作成できる
+    - form_withでは、配列を渡すことでネストしたルーティングを生成する
+  - createメソッドを追加する
+    -　新規作成したらコメントを記入した記事の画面に戻って、投稿したコメントが確認できるように追加する(redirect_toを使う。Viewファイルを編集)
+- リファクタリング
+  - app/views/aritcles/show.html.erbにコメントの一覧が表示されるが、コードが見づらいので、この部分をパーシャルで切り出す
+  - app/views/aritcles/show.html.erbにコメントの作成フォームが表示されるが、コードが見づらいので、この部分をパーシャルで切り出す
+- concernを使う
+  - 
